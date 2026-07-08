@@ -1,760 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KG Catalog — Knowledge Graphs, cataloged</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#FAF8F3;
-    --surface:#FFFFFF;
-    --ink:#1B2430;
-    --ink-soft:#5B6472;
-    --line:#E6E1D6;
-    --green:#4C9A2A;
-    --green-dark:#357A1B;
-    --green-pale:#E7F2DE;
-    --blue:#2C6E9E;
-    --d-cross:#4C9A2A;
-    --d-geo:#2C6E9E;
-    --d-sci:#7A5FB0;
-    --d-gov:#C98A1B;
-    --d-media:#C45B4E;
-    --d-life:#2A9D8F;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:'Inter',system-ui,sans-serif; font-size:16px; line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif; letter-spacing:-0.01em; margin:0;}
-  .mono{font-family:'IBM Plex Mono',monospace;}
-  a{color:inherit;}
-  :focus-visible{outline:2px solid var(--green-dark); outline-offset:3px; border-radius:4px;}
-  .wrap{max-width:1180px; margin:0 auto; padding:0 28px;}
-  img,svg{display:block;}
-
-  header.site{
-    position:sticky; top:0; z-index:50; background:rgba(250,248,243,0.92);
-    backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
-  }
-  nav.bar{display:flex; align-items:center; justify-content:space-between; padding:16px 28px; max-width:1180px; margin:0 auto;}
-  .brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.05rem; text-decoration:none;}
-  .brand .mark{width:26px; height:26px;}
-  .navlinks{display:flex; gap:28px; font-weight:500; font-size:0.95rem;}
-  .navlinks a{text-decoration:none; color:var(--ink-soft); padding:6px 2px; border-bottom:2px solid transparent;}
-  .navlinks a.active{color:var(--ink); border-color:var(--green);}
-  .navlinks a:hover{color:var(--ink);}
-  .navright{display:flex; align-items:center; gap:12px;}
-  .search-mini{
-    display:flex; align-items:center; gap:8px; background:var(--surface);
-    border:1px solid var(--line); border-radius:999px; padding:7px 14px;
-    color:var(--ink-soft); font-size:0.85rem; cursor:text;
-  }
-  .search-mini kbd{font-family:'IBM Plex Mono',monospace; font-size:0.7rem; background:var(--bg); border:1px solid var(--line); border-radius:5px; padding:1px 5px;}
-  .btn{
-    display:inline-flex; align-items:center; gap:6px; font-weight:600; font-size:0.9rem;
-    padding:10px 18px; border-radius:999px; text-decoration:none; border:1px solid transparent;
-    cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;
-  }
-  .btn-primary{background:var(--green); color:#fff;}
-  .btn-primary:hover{background:var(--green-dark);}
-  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
-  .btn-ghost:hover{border-color:var(--ink);}
-  @media (max-width:860px){ .navlinks{display:none;} .search-mini{display:none;} }
-
-  .hero{padding:56px 0 24px;}
-  .hero-grid{display:grid; grid-template-columns:1fr 1.15fr; gap:36px; align-items:center;}
-  .eyebrow{
-    display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace;
-    font-size:0.75rem; color:var(--green-dark); background:var(--green-pale);
-    padding:5px 12px; border-radius:999px; margin-bottom:18px; letter-spacing:.02em;
-  }
-  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--green-dark);}
-  .hero h1{font-size:2.7rem; line-height:1.08; margin-bottom:16px;}
-  .hero h1 span{color:var(--green-dark);}
-  .hero p.lead{color:var(--ink-soft); font-size:1.08rem; max-width:480px; margin-bottom:26px;}
-  .hero-ctas{display:flex; gap:12px; margin-bottom:30px;}
-  .hero-stats{display:flex; gap:28px;}
-  .hero-stats div b{display:block; font-family:'Space Grotesk',sans-serif; font-size:1.4rem;}
-  .hero-stats div span{font-size:0.8rem; color:var(--ink-soft);}
-
-  .graph-card{
-    position:relative; background:var(--surface); border:1px solid var(--line);
-    border-radius:20px; height:460px; overflow:hidden;
-    box-shadow:0 1px 2px rgba(27,36,48,0.03), 0 18px 40px -24px rgba(27,36,48,0.18);
-  }
-  .graph-card .hint{
-    position:absolute; top:14px; left:18px; font-size:0.78rem; color:var(--ink-soft);
-    display:flex; align-items:center; gap:6px; z-index:2; background:rgba(255,255,255,0.82);
-    padding:5px 11px; border-radius:999px; backdrop-filter:blur(4px);
-  }
-  .graph-card .hint .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
-  #graph{width:100%; height:100%; cursor:pointer;}
-  .node-label{font-family:'Inter',sans-serif; font-weight:600; pointer-events:none;}
-  .tooltip{
-    position:absolute; pointer-events:none; background:var(--ink); color:#fff;
-    padding:8px 11px; border-radius:8px; font-size:0.78rem; line-height:1.4;
-    transform:translate(-50%,-115%); opacity:0; transition:opacity .12s ease; z-index:5; max-width:210px;
-  }
-  .tooltip b{display:block; font-size:0.82rem; font-family:'Space Grotesk',sans-serif;}
-  .tooltip .note{display:block; color:#C9D2DA; font-size:0.7rem; margin-top:3px;}
-
-  .panel{
-    position:absolute; top:0; right:-340px; width:320px; height:100%;
-    background:var(--surface); border-left:1px solid var(--line); padding:22px;
-    transition:right .25s cubic-bezier(.4,0,.2,1); z-index:10; overflow-y:auto;
-  }
-  .panel.open{right:0;}
-  .panel .close{position:absolute; top:14px; right:14px; background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--ink-soft);}
-  .panel .tag{display:inline-block; font-size:0.7rem; font-weight:600; padding:3px 10px; border-radius:999px; margin-bottom:10px;}
-  .panel h3{font-size:1.2rem; margin-bottom:4px;}
-  .panel .desc{color:var(--ink-soft); font-size:0.88rem; margin:10px 0 16px;}
-  .panel dl{display:grid; grid-template-columns:auto 1fr; gap:8px 14px; font-size:0.85rem; margin-bottom:18px;}
-  .panel dt{color:var(--ink-soft);}
-  .panel dd{margin:0; font-family:'IBM Plex Mono',monospace; font-size:0.8rem;}
-  .panel .actions{display:flex; gap:8px;}
-  .panel .actions a{flex:1; text-align:center; font-size:0.82rem;}
-
-  @media (max-width:900px){
-    .hero-grid{grid-template-columns:1fr;}
-    .graph-card{height:380px;}
-    .hero h1{font-size:2.1rem;}
-  }
-
-  section.stats{padding:36px 0;}
-  .stats-grid{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
-    border:1px solid var(--line); border-radius:16px; overflow:hidden;
-  }
-  .stat-cell{background:var(--surface); padding:24px 22px;}
-  .stat-cell b{font-family:'Space Grotesk',sans-serif; font-size:1.7rem; display:block;}
-  .stat-cell span{color:var(--ink-soft); font-size:0.85rem;}
-  @media (max-width:700px){.stats-grid{grid-template-columns:1fr 1fr;}}
-
-  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px;}
-  .section-head h2{font-size:1.4rem;}
-  .section-head a{font-size:0.85rem; font-weight:600; color:var(--green-dark); text-decoration:none;}
-  .two-col{display:grid; grid-template-columns:1.1fr 1fr; gap:48px; padding:40px 0;}
-  @media (max-width:900px){.two-col{grid-template-columns:1fr; gap:36px;}}
-
-  .lb-row{display:grid; grid-template-columns:22px 1fr auto; align-items:center; gap:14px; padding:11px 0; border-bottom:1px solid var(--line);}
-  .lb-row:last-child{border-bottom:none;}
-  .lb-rank{font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); font-size:0.85rem;}
-  .lb-name{font-weight:600; font-size:0.92rem;}
-  .lb-domain{font-size:0.74rem; color:var(--ink-soft); font-weight:400;}
-  .lb-bar-track{height:6px; background:var(--bg); border-radius:4px; margin-top:6px; overflow:hidden;}
-  .lb-bar-fill{height:100%; border-radius:4px;}
-  .lb-value{font-family:'IBM Plex Mono',monospace; font-size:0.82rem; white-space:nowrap;}
-
-  .upd-item{display:flex; gap:14px; padding:14px 0; border-bottom:1px solid var(--line);}
-  .upd-item:last-child{border-bottom:none;}
-  .upd-dot{width:9px; height:9px; border-radius:50%; margin-top:6px; flex-shrink:0;}
-  .upd-item h4{font-size:0.94rem; margin:0 0 3px;}
-  .upd-item p{margin:0; font-size:0.82rem; color:var(--ink-soft);}
-  .upd-meta{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--ink-soft); margin-top:4px; display:block;}
-
-  section.domains{padding:8px 0 56px;}
-  .chip-row{display:flex; flex-wrap:wrap; gap:10px;}
-  .chip{
-    display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:999px;
-    background:var(--surface); border:1px solid var(--line); font-size:0.86rem; font-weight:500;
-    text-decoration:none; color:var(--ink);
-  }
-  .chip:hover{border-color:var(--ink);}
-  .chip .sw{width:8px; height:8px; border-radius:50%;}
-  .chip .count{ color:#9aa1aa; font-size:0.72rem; margin-left:4px; }
-
-  footer{border-top:1px solid var(--line); padding:36px 0; margin-top:20px;}
-  .foot-grid{display:flex; justify-content:space-between; flex-wrap:wrap; gap:18px; font-size:0.85rem; color:var(--ink-soft);}
-  footer a{text-decoration:none; color:var(--ink-soft);}
-  footer a:hover{color:var(--ink);}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBpedia KG Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body>
-
-<header class="site">
-  <nav class="bar">
-    <a href="index.html" class="brand">
-      <svg class="mark" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="none" stroke="#4C9A2A" stroke-width="2"/><circle cx="13" cy="13" r="5.4" fill="#4C9A2A" opacity="0.85"/><circle cx="21" cy="12" r="3.4" fill="#2C6E9E"/><circle cx="20" cy="21" r="4.2" fill="#C98A1B" opacity="0.85"/></svg>
-      KG&nbsp;Catalog
-    </a>
-    <div class="navlinks">
-      <a href="index.html" class="active">Home</a>
-      <a href="catalog.html">Browse</a>
-      <a href="about.html">About</a>
-      <a href="submit.html">Add a KG</a>
+<body data-page="home">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="KG Catalog Home">
+        <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
+          <circle cx="18" cy="18" r="17" fill="none" stroke="#2d4b8f" stroke-width="2"></circle>
+          <circle cx="13" cy="15" r="6" fill="#2d4b8f"></circle>
+          <circle cx="22.6" cy="12.3" r="3.8" fill="#3e67bf"></circle>
+          <circle cx="23" cy="23" r="5" fill="#f08c2e"></circle>
+        </svg>
+        DBpedia KG Catalog
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html" data-page="home">Overview</a>
+        <a href="catalog.html" data-page="catalog">Browse</a>
+        <a href="submit.html" data-page="submit">Add a KG</a>
+        <a href="about.html" data-page="about">About</a>
+      </nav>
+      <a class="nav-cta" href="https://databus.dbpedia.org/knowledge-graph-catalog" target="_blank" rel="noopener">Databus source</a>
     </div>
-    <div class="navright">
-      <div class="search-mini">⌘ search graphs <kbd>K</kbd></div>
-      <a class="btn btn-ghost" href="https://databus.dbpedia.org/knowledge-graph-catalog" target="_blank" rel="noopener">Databus ↗</a>
-    </div>
-  </nav>
-</header>
+  </header>
 
-<main class="wrap">
+  <main>
+    <div class="container">
+      <section class="landing-intro">
+        <h1>The Open Knowledge Graph Catalog</h1>
+        <p class="lead">Explore open knowledge graphs in one modern and interactive catalog. Compare graph size, freshness, and access details before diving into each profile.</p>
+      </section>
 
-  <section class="hero">
-    <div class="hero-grid">
-      <div>
-  <!-- provenance moved to footer -->
-        <h1>The open <span>knowledge&nbsp;graph</span> catalog.</h1>
-        <p class="lead">A governed environment for publishing and discovering knowledge graphs. Built for research and production: curated metadata, clear provenance and machine‑readable metadata for reliable reuse. Includes versioning and stable identifiers so datasets can be cited and integrated into production pipelines with confidence.</p>
-        <div class="hero-ctas">
-          <a class="btn btn-primary" href="catalog.html">Browse the catalog →</a>
-          <a class="btn btn-ghost" href="submit.html">Add your KG</a>
-        </div>
-        <!-- hero stats removed (now shown in the stats grid below) -->
-      </div>
-
-      <div class="graph-card">
-        <div class="hint"><span class="dot"></span> <span id="graphHint">click a domain to explore · click a graph for details</span></div>
-        <svg id="graph"></svg>
-        <div class="tooltip" id="tooltip"></div>
-        <div class="panel" id="panel">
-          <button class="close" id="panelClose" aria-label="Close">✕</button>
-          <span class="tag" id="pTag">Cross-domain</span>
-          <h3 id="pName">—</h3>
-          <p class="desc" id="pDesc">—</p>
-          <dl>
-            <dt>Triples</dt><dd id="pTriples">—</dd>
-            <dt>Last updated</dt><dd id="pUpdated">—</dd>
-            <dt>License</dt><dd id="pLicense">—</dd>
-            <dt>Downloads/yr</dt><dd id="pDownloads">—</dd>
-          </dl>
-          <div class="actions">
-            <a class="btn btn-ghost" id="pDatabus" href="#" target="_blank" rel="noopener">Databus ↗</a>
-            <a class="btn btn-primary" id="pProfile" href="#">Full profile</a>
+      <section class="landing-viz">
+        <article class="hero-viz">
+          <div class="graph-card">
+            <div class="viz-note">Select a domain to zoom, then click a knowledge graph node to get its details.</div>
+            <svg id="graph"></svg>
+            <div class="tooltip" id="tooltip"></div>
+            <div class="panel" id="panel">
+              <button class="close" id="panelClose" aria-label="Close">✕</button>
+              <span class="tag" id="pTag">Cross-domain</span>
+              <h3 id="pName">-</h3>
+              <p class="desc" id="pDesc">-</p>
+              <dl>
+                <dt>Dump size</dt><dd id="pTriples">-</dd>
+                <dt>Last updated</dt><dd id="pUpdated">-</dd>
+                <dt>License</dt><dd id="pLicense">-</dd>
+              </dl>
+              <div class="actions">
+                <a class="btn secondary" id="pHomepage" href="#" target="_blank" rel="noopener">Homepage</a>
+                <a class="btn primary" id="pProfile" href="#">Full profile</a>
+              </div>
+            </div>
           </div>
+        </article>
+      </section>
+
+      <section class="stats">
+        <div class="stats-grid">
+          <div class="stat-cell"><b id="statGraphs">-</b><span>tracked knowledge graphs</span></div>
+          <div class="stat-cell"><b id="statUpdated30">-</b><span>KGs updated in the last 30 days</span></div>
+          <div class="stat-cell"><b id="statTopDomain">-</b><span>most represented domain</span></div>
+          <div class="stat-cell"><b id="statTotalSize">-</b><span>total size of cataloged KGs</span></div>
         </div>
-      </div>
+      </section>
+
+      <section class="section-grid">
+        <article class="card panel-card">
+          <div class="panel-head">
+            <h2>Largest KGs</h2>
+            <a href="catalog.html?sort=size">See all</a>
+          </div>
+          <ol id="largest-list" class="list"></ol>
+        </article>
+
+        <article class="card panel-card">
+          <div class="panel-head">
+            <h2>Recently updated KGs</h2>
+            <a href="catalog.html?sort=updated">See all</a>
+          </div>
+          <ol id="latest-list" class="list"></ol>
+        </article>
+      </section>
     </div>
-  </section>
+  </main>
 
-  <section class="stats">
-    <div class="stats-grid">
-      <div class="stat-cell"><b id="statGraphs">—</b><span>knowledge graphs tracked</span></div>
-      <div class="stat-cell"><b id="statUpdated30">—</b><span>updated (30d)</span></div>
-      <div class="stat-cell"><b id="statTopDomain">—</b><span>most covered domain</span></div>
-      <div class="stat-cell"><b id="statDomains">—</b><span>domains covered</span></div>
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <span>Independent web interface for DBpedia catalog exploration.</span>
+      <span><a href="about.html">About</a> · <a href="submit.html">Add a KG</a> · <a href="catalog.html">Browse</a></span>
     </div>
-  </section>
+  </footer>
 
-  <section class="two-col">
-    <div>
-      <div class="section-head">
-        <h2>Largest knowledge graphs</h2>
-        <a href="catalog.html?sort=size">sort by size →</a>
-      </div>
-      <div id="leaderboard"></div>
-    </div>
-    <div>
-      <div class="section-head">
-        <h2>Recently updated</h2>
-        <a href="catalog.html?sort=updated">view all →</a>
-      </div>
-      <div id="updates"></div>
-    </div>
-  </section>
-
-  <section class="domains">
-    <div class="section-head"><h2>Browse by domain</h2></div>
-    <div class="chip-row" id="domainChips"></div>
-  </section>
-
-</main>
-
-<footer>
-  <div class="wrap foot-grid">
-    <span>KG Catalog is an independent index of <a href="https://databus.dbpedia.org/knowledge-graph-catalog" target="_blank" rel="noopener">databus.dbpedia.org/knowledge-graph-catalog</a></span>
-    <span><a href="about.html">About</a> · <a href="submit.html">Add a KG</a> · <a href="https://github.com/dbpedia" target="_blank" rel="noopener">GitHub</a></span>
-  </div>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script>
-/* ---------------------------------------------------------------
-   MOCK DATA. "flagship" are the named, real example KGs. "filler"
-   is a generated stand-in for the ~900 remaining catalog entries,
-   used only to prove the layout holds up near real scale. Replace
-   both with a single fetch against the Databus API once that
-   layer exists. There are NO inter-graph links here on purpose —
-   we don't have real interlink data from Databus, so the cluster
-   is grouped by domain (something we do know) instead of a
-   fabricated relationship network.
----------------------------------------------------------------- */
-const DOMAIN_COLORS = {
-  "Cross-domain": "#4C9A2A",
-  "Geography": "#2C6E9E",
-  "Science": "#7A5FB0",
-  "Government": "#C98A1B",
-  "Media": "#C45B4E",
-  "Life sciences": "#2A9D8F"
-};
-const DOMAINS = Object.keys(DOMAIN_COLORS);
-
-const flagship = [
-  {name:"DBpedia", domain:"Cross-domain", triples:1.04e9, downloads:612000, updated:"Today", license:"CC BY-SA 3.0", desc:"Structured facts extracted from Wikipedia infoboxes, in every language edition.", isFiller:false},
-  {name:"Wikidata", domain:"Cross-domain", triples:1.69e10, downloads:980000, updated:"2 days ago", license:"CC0 1.0", desc:"Collaboratively edited, free knowledge base feeding Wikipedia and beyond.", isFiller:false},
-  {name:"YAGO", domain:"Cross-domain", triples:2.5e8, downloads:54000, updated:"3 weeks ago", license:"CC BY 4.0", desc:"A unified ontology combining Wikipedia, WordNet and Wikidata.", isFiller:false},
-  {name:"GeoNames", domain:"Geography", triples:1.5e8, downloads:71000, updated:"5 days ago", license:"CC BY 4.0", desc:"Geographical database covering all countries with 11M+ place names.", isFiller:false},
-  {name:"LinkedGeoData", domain:"Geography", triples:9.0e7, downloads:18000, updated:"4 months ago", license:"ODbL", desc:"OpenStreetMap data converted into RDF and linked to the LOD cloud.", isFiller:false},
-  {name:"Bio2RDF", domain:"Life sciences", triples:2.0e8, downloads:39000, updated:"1 month ago", license:"CC BY 3.0", desc:"Linked data for life sciences, integrating 35+ biological databases.", isFiller:false},
-  {name:"ORKG", domain:"Science", triples:1.2e7, downloads:9200, updated:"6 days ago", license:"CC BY 4.0", desc:"Open Research Knowledge Graph — describing scholarly contributions.", isFiller:false},
-  {name:"EU Open Data KG", domain:"Government", triples:8.0e7, downloads:22000, updated:"2 weeks ago", license:"CC BY 4.0", desc:"Cross-linked metadata from EU member-state open data portals.", isFiller:false},
-  {name:"MusicBrainz LD", domain:"Media", triples:4.5e7, downloads:15000, updated:"10 days ago", license:"CC0 1.0", desc:"Open music encyclopedia, structured as linked data.", isFiller:false},
-  {name:"EventKG", domain:"Media", triples:3.0e7, downloads:6100, updated:"2 months ago", license:"CC BY 4.0", desc:"A multilingual knowledge graph of historical and contemporary events.", isFiller:false}
-];
-
-function mulberry32(seed){ return function(){ let t = seed += 0x6D2B79F5; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-const rand = mulberry32(42);
-const filler = [];
-let fid = 0;
-DOMAINS.forEach(domain => {
-  const count = 130 + Math.floor(rand()*40);
-  for(let i=0;i<count;i++){
-    fid++;
-    const logT = 5 + rand()*3.3;
-    filler.push({
-      name:`Dataset #${String(fid).padStart(3,"0")}`, domain,
-      triples: Math.round(10**logT), downloads:null, updated:null, license:null,
-      desc:"Simulated placeholder entry, generated to stress-test the catalog layout at real scale.",
-      isFiller:true
-    });
-  }
-});
-const allKGs = flagship.concat(filler);
-allKGs.forEach(d => d.value = d.triples);
-
-function fmtTriples(n){
-  if(n >= 1e9) return (n/1e9).toFixed(n>=1e10?0:1)+"B";
-  if(n >= 1e6) return (n/1e6).toFixed(0)+"M";
-  if(n >= 1e3) return (n/1e3).toFixed(0)+"K";
-  return n.toLocaleString();
-}
-
-function fmtBytes(n){
-  if(n == null || isNaN(n)) return '—';
-  const num = Number(n);
-  if(num >= 1e9) return (num/1e9).toFixed(num >= 1e10 ? 0 : 1) + ' GB';
-  if(num >= 1e6) return (num/1e6).toFixed(1) + ' MB';
-  if(num >= 1e3) return (num/1e3).toFixed(0) + ' KB';
-  return num.toLocaleString() + ' B';
-}
-
-function parseSparqlXml(text){
-  try{
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'application/xml');
-    if(doc.getElementsByTagName('parsererror').length) throw new Error('XML parse error');
-    const results = [];
-    const resultEls = doc.getElementsByTagName('result');
-    for(let i=0;i<resultEls.length;i++){
-      const res = resultEls[i];
-      const bindingEls = res.getElementsByTagName('binding');
-      const obj = {};
-      for(let j=0;j<bindingEls.length;j++){
-        const b = bindingEls[j];
-        const name = b.getAttribute('name');
-        const uri = b.getElementsByTagName('uri')[0];
-        const lit = b.getElementsByTagName('literal')[0];
-        const value = uri ? uri.textContent : (lit ? lit.textContent : null);
-        if(value !== null) obj[name] = { value };
-      }
-      results.push(obj);
-    }
-    return { results: { bindings: results } };
-  }catch(e){
-    throw new Error('Failed to parse SPARQL XML: '+e.message);
-  }
-}
-
-function formatRelativeTime(iso){
-  if(!iso) return '—';
-  const t = Date.parse(iso);
-  if(isNaN(t)) return iso;
-  const now = Date.now();
-  let diff = Math.floor((now - t) / 1000); // seconds
-  if(diff < 0) diff = 0;
-  if(diff < 60) return 'just now';
-  const mins = Math.floor(diff / 60);
-  if(mins < 60) return `${mins} min${mins===1?'':'s'} ago`;
-  const hours = Math.floor(mins / 60);
-  if(hours < 24) return `${hours} hour${hours===1?'':'s'} ago`;
-  const days = Math.floor(hours / 24);
-  if(days === 1) return 'yesterday';
-  if(days < 30) return `${days} day${days===1?'':'s'} ago`;
-  const months = Math.floor(days / 30);
-  if(months < 12) return `${months} month${months===1?'':'s'} ago`;
-  const years = Math.floor(months / 12);
-  return `${years} year${years===1?'':'s'} ago`;
-}
-
-/* ---------------- ZOOMABLE CIRCLE PACKING ---------------- */
-const card = document.querySelector(".graph-card");
-const svg = d3.select("#graph");
-const tooltip = document.getElementById("tooltip");
-const panel = document.getElementById("panel");
-const hint = document.getElementById("graphHint");
-
-function size(){ return [card.clientWidth, card.clientHeight]; }
-let [W,H] = size();
-
-const hierarchyData = { name:"root", children: DOMAINS.map(domain => ({ name:domain, children: allKGs.filter(k=>k.domain===domain) })) };
-
-function pack(){
-  return d3.pack().size([W,H]).padding(d => d.depth === 1 ? 6 : 2)(
-    d3.hierarchy(hierarchyData).sum(d=>d.value||0).sort((a,b)=>b.value-a.value)
-  );
-}
-
-let root = pack();
-let focus = root;
-let view;
-
-svg.attr("viewBox", `-${W/2} -${H/2} ${W} ${H}`)
-  .on("click", (event) => { if(focus !== root){ zoom(event, root); } });
-
-const gNode = svg.append("g");
-const node = gNode.selectAll("circle")
-  .data(root.descendants().slice(1))
-  .join("circle")
-    .attr("fill", d => d.children ? DOMAIN_COLORS[d.data.name]+"14" : (d.data.isFiller ? DOMAIN_COLORS[d.data.domain]+"55" : DOMAIN_COLORS[d.data.domain]))
-    .attr("stroke", d => d.children ? DOMAIN_COLORS[d.data.name] : (d.data.isFiller ? "none" : "#fff"))
-    .attr("stroke-width", d => d.children ? 1.4 : 2)
-    .attr("pointer-events", "all")
-    .style("cursor", d => d.children ? "zoom-in" : "pointer")
-    .on("mouseenter", (e,d) => {
-      d3.select(e.currentTarget).attr("stroke", d.children ? DOMAIN_COLORS[d.data.name] : "var(--ink)");
-      if(d.children){
-        tooltip.innerHTML = `<b>${d.data.name}</b>${d.children.length} graphs · ${fmtTriples(d.value)} triples`;
-      } else {
-        tooltip.innerHTML = `<b>${d.data.name}</b>${d.data.domain} · ${fmtTriples(d.data.triples)} triples${d.data.isFiller ? '<span class="note">simulated entry</span>' : ''}`;
-      }
-      tooltip.style.opacity = 1;
-      moveTip(e);
-    })
-    .on("mousemove", moveTip)
-    .on("mouseleave", (e,d) => { tooltip.style.opacity = 0; })
-    .on("click", (event, d) => {
-      event.stopPropagation();
-      if(d.children){
-        if(focus !== d) zoom(event, d);
-      } else {
-        openPanel(d.data);
-      }
-    });
-
-const label = svg.append("g")
-  .style("font-family","Inter,sans-serif")
-  .attr("text-anchor","middle")
-  .attr("pointer-events","none")
-  .selectAll("text")
-  .data(root.descendants())
-  .join("text")
-    .attr("class","node-label")
-    .style("font-size", d => d.depth === 1 ? "13px" : "10px")
-    .style("font-weight", d => d.depth === 1 ? 700 : 600)
-    .style("fill", d => d.depth === 1 ? DOMAIN_COLORS[d.data.name] : "#fff")
-    .style("fill-opacity", d => d.parent === root ? 1 : 0)
-    .style("display", d => d.parent === root ? "inline" : "none")
-    .text(d => d.children ? d.data.name : (d.data.isFiller ? "" : d.data.name));
-
-function moveTip(e){
-  const rect = card.getBoundingClientRect();
-  tooltip.style.left = (e.clientX - rect.left) + "px";
-  tooltip.style.top  = (e.clientY - rect.top) + "px";
-}
-
-zoomTo([root.x, root.y, root.r * 2]);
-
-function zoomTo(v){
-  const k = W / v[2];
-  view = v;
-  label.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
-  node.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
-  node.attr("r", d => d.r * k);
-}
-
-function zoom(event, d){
-  focus = d;
-  hint.textContent = (d === root) ? "click a domain to explore · click a graph for details" : `viewing ${d.data.name} · click outside to go back`;
-  const transition = svg.transition().duration(700)
-    .tween("zoom", () => {
-      const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
-      return t => zoomTo(i(t));
-    });
-  label.filter(function(ld){ return ld.parent === focus || this.style.display === "inline"; })
-    .transition(transition)
-      .style("fill-opacity", ld => ld.parent === focus ? 1 : 0)
-      .on("start", function(ld){ if(ld.parent === focus) this.style.display = "inline"; })
-      .on("end", function(ld){ if(ld.parent !== focus) this.style.display = "none"; });
-}
-
-function openPanel(kg){
-  document.getElementById("pTag").textContent = kg.domain;
-  document.getElementById("pTag").style.background = DOMAIN_COLORS[kg.domain]+"22";
-  document.getElementById("pTag").style.color = DOMAIN_COLORS[kg.domain];
-  document.getElementById("pName").textContent = kg.name;
-  document.getElementById("pDesc").textContent = kg.desc;
-  document.getElementById("pTriples").textContent = fmtTriples(kg.triples);
-  document.getElementById("pUpdated").textContent = kg.updated || "—";
-  document.getElementById("pLicense").textContent = kg.license || "—";
-  document.getElementById("pDownloads").textContent = kg.downloads ? kg.downloads.toLocaleString() : "—";
-  document.getElementById("pDatabus").href = "https://databus.dbpedia.org/knowledge-graph-catalog/" + kg.name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
-  document.getElementById("pProfile").href = "kg.html?id=" + encodeURIComponent(kg.name);
-  panel.classList.add("open");
-}
-document.getElementById("panelClose").addEventListener("click", ()=> panel.classList.remove("open"));
-
-window.addEventListener("resize", () => {
-  [W,H] = size();
-  svg.attr("viewBox", `-${W/2} -${H/2} ${W} ${H}`);
-  root = pack();
-  zoomTo(focus === root ? [root.x, root.y, root.r*2] : view);
-});
-
-/* ---------------- LEADERBOARD (placeholder until live data loads) ---------------- */
-const lb = document.getElementById("leaderboard");
-if(lb) lb.innerHTML = '<div class="lb-row">Loading largest KGs…</div>';
-
-/* ---------------- LATEST UPDATES (placeholder until live data loads) ---------------- */
-const upd = document.getElementById("updates");
-if(upd) upd.innerHTML = '<div class="upd-item">Loading recent updates…</div>';
-
-/* ---------------- DOMAIN CHIPS (legend, doubles as filter entry point) ---------------- */
-const chips = document.getElementById("domainChips");
-DOMAINS.forEach(name => {
-  const color = DOMAIN_COLORS[name];
-  const count = allKGs.filter(n=>n.domain===name).length;
-  const a = document.createElement("a");
-  a.className = "chip";
-  a.href = "catalog.html?domain=" + encodeURIComponent(name);
-  a.innerHTML = `<span class="sw" style="background:${color}"></span> ${name} <span class="count">(${count})</span>`;
-  chips.appendChild(a);
-});
-
-/* ---------------- STAT NUMBERS (computed from the dataset above) ---------------- */
-function parseRelativeUpdated(label){
-  // label examples from mock data: "Today", "2 days ago", "3 weeks ago", "1 month ago", "2 months ago"
-  if(!label) return null;
-  label = String(label).toLowerCase();
-  if(label.includes('today')) return 0;
-  const m = label.match(/(\d+)\s+(day|week|month|year)s?\s+ago/);
-  if(m){
-    const n = Number(m[1]);
-    const unit = m[2];
-    if(unit === 'day') return n;
-    if(unit === 'week') return n * 7;
-    if(unit === 'month') return n * 30;
-    if(unit === 'year') return n * 365;
-  }
-  return null; // unknown format
-}
-
-const graphsCount = 4;
-// count updated within last 30 days using mock "updated" labels when available
-const updated30Count = allKGs.reduce((acc, d) => {
-  const days = parseRelativeUpdated(d.updated);
-  return acc + (days !== null && days <= 30 ? 1 : 0);
-}, 0);
-
-// compute most active domain in last 30 days
-const activeCountsByDomain = {};
-allKGs.forEach(k => {
-  const days = parseRelativeUpdated(k.updated);
-  if(days !== null && days <= 30){
-    activeCountsByDomain[k.domain] = (activeCountsByDomain[k.domain] || 0) + 1;
-  }
-});
-const mostActive = Object.entries(activeCountsByDomain).sort((a,b) => b[1]-a[1])[0] || [null,0];
-
-// place the updated-in-30d number under "knowledge graphs" in the stats grid
-document.getElementById("statGraphs").textContent = updated30Count.toLocaleString();
-// show total graphs under the "updated (30d)" slot in the stats grid (SPARQL override will update this)
-document.getElementById("statUpdated30").textContent = graphsCount.toLocaleString();
-document.getElementById("statTopDomain").textContent = mostActive[0] ? `${mostActive[0]} (${mostActive[1]})` : '—';
-document.getElementById("statDomains").textContent = DOMAINS.length;
-
-// ------------------------------------------------------------------
-// Optional: fetch exact KG count from a SPARQL endpoint using the
-// query you provided. This will replace the local-count display if
-// the network request succeeds. If the endpoint is not reachable or
-// blocked by CORS, the UI will keep the local computed count.
-//
-// NOTE: change SPARQL_ENDPOINT to the actual SPARQL URL if different.
-const SPARQL_ENDPOINT = 'https://databus.dbpedia.org/sparql';
-const SPARQL_QUERY = `PREFIX databus: <https://dataid.dbpedia.org/databus#>\n\nSELECT (COUNT(DISTINCT ?group) AS ?groupCount)\nWHERE {\n  ?group a databus:Group .\n  ?group databus:account <https://databus.dbpedia.org/knowledge-graph-catalog> .\n}`;
-
-
-async function fetchExactGraphCount(){
-  if(!SPARQL_ENDPOINT) return;
-  try{
-    const url = SPARQL_ENDPOINT + '?query=' + encodeURIComponent(SPARQL_QUERY);
-    const res = await fetch(url, { headers: { 'Accept': 'application/sparql-results+json, application/json' }});
-    if(!res.ok) throw new Error('SPARQL request failed: '+res.status);
-    // read as text first so we can show helpful debug info if the endpoint
-    // returns HTML or an error page (which would break res.json())
-    const text = await res.text();
-    let j;
-    try{
-      j = text ? JSON.parse(text) : null;
-    }catch(parseErr){
-      // try parsing SPARQL XML result format as a fallback
-      try{
-        j = parseSparqlXml(text);
-      }catch(xmlErr){
-        console.warn('SPARQL endpoint returned non-JSON response (truncated):', text.slice(0,800));
-        throw new Error('Invalid JSON from SPARQL endpoint: ' + parseErr.message);
-      }
-    }
-    const val = j?.results?.bindings?.[0]?.groupCount?.value;
-    if(val){
-      const n = Number(val);
-      if(!isNaN(n)) updateGraphCount(n);
-    }
-  }catch(err){
-    // network/CORS error - keep local count; optionally log for debugging
-    console.warn('Could not fetch exact KG count from SPARQL endpoint:', err);
-  }
-}
-
-// Kick off the network fetch but don't block rendering
-fetchExactGraphCount();
-// Also fetch the top-5 largest KGs (title, totalSize) to populate the leaderboard
-const SPARQL_LARGEST = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
-PREFIX databus: <https://dataid.dbpedia.org/databus#>
-PREFIX dct: <http://purl.org/dc/terms/>
-
-SELECT ?group ?title (SUM(?size) AS ?totalSize)
-WHERE {
-  SELECT DISTINCT ?group ?distribution ?size ?title
-  WHERE {
-      ?group databus:account <https://databus.dbpedia.org/knowledge-graph-catalog> .
-      ?group dct:title ?title .
-      ?version databus:group ?group .
-      ?version dcat:distribution ?distribution .
-      ?distribution dcat:byteSize ?size .
-  }
-}
-GROUP BY ?group ?title
-ORDER BY DESC(?totalSize)
-LIMIT 5`;
-
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
-
-async function fetchLargestKGs(){
-  if(!SPARQL_ENDPOINT) return;
-  const lb = document.getElementById('leaderboard');
-  try{
-    const url = SPARQL_ENDPOINT + '?query=' + encodeURIComponent(SPARQL_LARGEST);
-    const res = await fetch(url, { headers: { 'Accept': 'application/sparql-results+json, application/json' }});
-    if(!res.ok) throw new Error('SPARQL request failed: '+res.status);
-    const text = await res.text();
-    let j;
-    try{ j = text ? JSON.parse(text) : null; }catch(e){
-      // fallback to parsing SPARQL XML
-      try{ j = parseSparqlXml(text); }catch(xmlErr){
-        console.warn('Largest KGs SPARQL returned non-JSON (truncated):', text.slice(0,800));
-        const preview = text ? text.slice(0,1200).replace(/</g,'&lt;') : '(empty response)';
-        lb.innerHTML = `
-          <div class="lb-row">Could not parse SPARQL response (non-JSON). This often indicates a CORS or HTML error page from the endpoint.</div>
-          <div class="lb-row" style="font-size:0.82rem; color:#5b6472;">HTTP response preview:</div>
-          <pre style="white-space:pre-wrap; max-height:220px; overflow:auto; background:#f6f6f6; padding:8px; border-radius:6px;">${preview}</pre>
-        `;
-        return;
-      }
-    }
-    const rows = j?.results?.bindings || [];
-    console.log('fetchLargestKGs: rows=', rows.length);
-    if(!rows.length){ lb.innerHTML = '<div class="lb-row">No results from SPARQL query</div>'; return; }
-
-    const entries = rows.map(r => ({
-      group: r.group?.value,
-      title: r.title?.value || r.group?.value,
-      size: Number(r.totalSize?.value || 0)
-    })).sort((a,b) => b.size - a.size);
-
-    const maxSize = Math.max(...entries.map(e=>e.size), 1);
-    lb.innerHTML = '';
-    entries.forEach((e,i) => {
-      const pct = Math.round((e.size / maxSize) * 100);
-      const row = document.createElement('div');
-      row.className = 'lb-row';
-      row.innerHTML = `
-        <span class="lb-rank">${i+1}</span>
-        <div>
-          <a class="lb-name" href="${e.group}" target="_blank" rel="noopener">${escapeHtml(e.title)}</a>
-          <div class="lb-bar-track"><div class="lb-bar-fill" style="width:${pct}%; background:${DOMAIN_COLORS['Cross-domain']}"></div></div>
-        </div>
-        <span class="lb-value">${fmtBytes(e.size)}</span>`;
-      lb.appendChild(row);
-    });
-
-  }catch(err){
-    console.warn('Could not fetch largest KGs from SPARQL endpoint:', err);
-    if(lb) lb.innerHTML = '<div class="lb-row">Could not load largest KGs</div>';
-  }
-}
-
-fetchLargestKGs();
-
-// Fetch the 5 most recently modified KGs and populate the "Recently updated" panel
-const SPARQL_LATEST = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
-PREFIX databus: <https://dataid.dbpedia.org/databus#>
-PREFIX dct: <http://purl.org/dc/terms/>
-
-SELECT ?group ?title (MAX(?modified) AS ?lastModified)
-WHERE {
-    ?group databus:account <https://databus.dbpedia.org/knowledge-graph-catalog> .
-    ?group dct:title ?title .
-    ?version databus:group ?group .
-    ?version dct:modified ?modified .
-}
-GROUP BY ?group ?title
-ORDER BY DESC(?lastModified)
-LIMIT 5`;
-
-async function fetchRecentUpdates(){
-  const el = document.getElementById('updates');
-  if(!SPARQL_ENDPOINT || !el) return;
-  try{
-    const url = SPARQL_ENDPOINT + '?query=' + encodeURIComponent(SPARQL_LATEST);
-    const res = await fetch(url, { headers: { 'Accept': 'application/sparql-results+json, application/json' }});
-    if(!res.ok) throw new Error('SPARQL request failed: '+res.status);
-    const text = await res.text();
-    let j;
-    try{ j = text ? JSON.parse(text) : null; }catch(e){
-      j = parseSparqlXml(text);
-    }
-    const rows = j?.results?.bindings || [];
-    if(!rows.length){ el.innerHTML = '<div class="upd-item">No recent updates found</div>'; return; }
-    el.innerHTML = '';
-    rows.forEach(r => {
-      const group = r.group?.value;
-      const title = r.title?.value || group;
-      const modified = r.lastModified?.value || '';
-      const item = document.createElement('div');
-      item.className = 'upd-item';
-      item.innerHTML = `
-        <span class="upd-dot" style="background:${DOMAIN_COLORS['Cross-domain']}"></span>
-        <div>
-          <h4><a href="${group}" target="_blank" rel="noopener">${escapeHtml(title)}</a></h4>
-          <p class="upd-meta">${escapeHtml(formatRelativeTime(modified))}</p>
-        </div>`;
-      el.appendChild(item);
-    });
-  }catch(err){
-    console.warn('Could not fetch recent updates from SPARQL endpoint:', err);
-    if(el) el.innerHTML = '<div class="upd-item">Could not load recent updates</div>';
-  }
-}
-
-fetchRecentUpdates();
-</script>
+  <script src="assets/js/common.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="assets/js/index.js"></script>
 </body>
 </html>

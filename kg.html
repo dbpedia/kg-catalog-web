@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KG Profile | DBpedia KG Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="catalog">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="KG Catalog Home">
+        <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
+          <circle cx="18" cy="18" r="17" fill="none" stroke="#2d4b8f" stroke-width="2"></circle>
+          <circle cx="13" cy="15" r="6" fill="#2d4b8f"></circle>
+          <circle cx="22.6" cy="12.3" r="3.8" fill="#3e67bf"></circle>
+          <circle cx="23" cy="23" r="5" fill="#f08c2e"></circle>
+        </svg>
+        DBpedia KG Catalog
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html" data-page="home">Overview</a>
+        <a href="catalog.html" data-page="catalog">Browse</a>
+        <a href="submit.html" data-page="submit">Add a KG</a>
+        <a href="about.html" data-page="about">About</a>
+      </nav>
+      <a class="nav-cta" href="https://databus.dbpedia.org/knowledge-graph-catalog" target="_blank" rel="noopener">Databus source</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="container" id="kg-root"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <span>KG profile view for transparent metadata and provenance.</span>
+      <span><a href="catalog.html">Browse catalog</a> · <a href="submit.html">Submit a graph</a></span>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/kg.js"></script>
+</body>
+</html>
