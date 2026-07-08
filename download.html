@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download | DBpedia KG Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="download">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="KG Catalog Home">
+        <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
+          <circle cx="18" cy="18" r="17" fill="none" stroke="#2d4b8f" stroke-width="2"></circle>
+          <circle cx="13" cy="15" r="6" fill="#2d4b8f"></circle>
+          <circle cx="22.6" cy="12.3" r="3.8" fill="#3e67bf"></circle>
+          <circle cx="23" cy="23" r="5" fill="#f08c2e"></circle>
+        </svg>
+        DBpedia KG Catalog
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html" data-page="home">Overview</a>
+        <a href="catalog.html" data-page="catalog">Browse</a>
+        <a href="submit.html" data-page="submit">Add a KG</a>
+        <a href="download.html" data-page="download">Download</a>
+        <a href="about.html" data-page="about">About</a>
+      </nav>
+      <a class="nav-cta" href="https://databus.dbpedia.org/knowledge-graph-catalog" target="_blank" rel="noopener">Databus source</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <section class="card detail">
+        <h1>How to download catalog data</h1>
+        <p class="lead">This page explains the supported ways to download one KG, one version, or the full catalog from Databus and related sources.</p>
+
+        <h2 style="margin-top:1rem; font-size:1.08rem;">Download the latest version of a KG</h2>
+        <p>First, open the KG profile page (e.g., <a href="kg.html?id=orkg">ORKG</a>) and identify the Databus identifier for the knowledge graph you want to download.</p>
+        <p>Then, use the following Docker command to download the latest version of the KG. The example below is for ORKG:</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="download-orkg">Copy</button>
+          <pre><code id="download-orkg">docker run --rm \
+  -v "$(pwd)":/data \
+  dbpedia/databus-python-client \
+  download https://databus.dbpedia.link/knowledge-graph-catalog/orkg</code></pre>
+        </div>
+
+        <h2 style="margin-top:1rem; font-size:1.08rem;">Download all versions of a KG</h2>
+        <p>First, open the KG profile page (E.g., <a href="kg.html?id=orkg">ORKG</a>) and identify the Databus identifier for the knowledge graph you want to download.</p>
+        <p>Then, use the following Docker command to download all versions of the KG. The example below is for ORKG and uses the --all-versions flag:</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="download-orkg">Copy</button>
+          <pre><code id="download-orkg">docker run --rm \
+  -v "$(pwd)":/data \
+  dbpedia/databus-python-client \
+  download --all-versions https://databus.dbpedia.link/knowledge-graph-catalog/orkg</code></pre>
+        </div>
+
+        <h2 style="margin-top:1rem; font-size:1.08rem;">Whole catalog</h2>
+        <p>todo</p>
+<!--        <p>The catalog itself can be traversed through Databus or SPARQL. This is the right path when you want a complete snapshot of all knowledge graphs and their metadata.</p>
+-->
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <span>Download guidance for catalog users and data engineers.</span>
+      <span><a href="about.html">About</a> · <a href="catalog.html">Browse catalog</a> · <a href="submit.html">Submit a graph</a></span>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector(".code-copy");
+      if (!button) return;
+
+      button.addEventListener("click", async function () {
+        var targetId = button.getAttribute("data-copy-target");
+        var target = document.getElementById(targetId);
+        if (!target) return;
+
+        try {
+          await navigator.clipboard.writeText(target.textContent);
+          button.textContent = "Copied";
+          setTimeout(function () {
+            button.textContent = "Copy";
+          }, 1500);
+        } catch (error) {
+          console.error("Could not copy download command:", error);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
