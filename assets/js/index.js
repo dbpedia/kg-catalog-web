@@ -13,23 +13,14 @@ select ?kgDatabusUri ?size ?homepage ?domain where {
     dcterms:subject ?domain .
 }`;
 
-  const SPARQL_LARGEST_QUERY = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
-PREFIX databus: <https://dataid.dbpedia.org/databus#>
-PREFIX dct: <http://purl.org/dc/terms/>
+  const SPARQL_LARGEST_QUERY = `PREFIX databus: <https://dataid.dbpedia.org/databus#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
 
-SELECT ?group ?title (SUM(?size) AS ?totalSize)
-WHERE {
-  SELECT DISTINCT ?group ?distribution ?size ?title
-  WHERE {
-      ?group databus:account <https://databus.dbpedia.org/knowledge-graph-catalog> .
-      ?group dct:title ?title .
-      ?version databus:group ?group .
-      ?version dcat:distribution ?distribution .
-      ?distribution dcat:byteSize ?size .
-  }
+SELECT ?kg ?size WHERE {
+  ?kg a databus:Group ;
+      dcat:byteSize ?size .
 }
-GROUP BY ?group ?title
-ORDER BY DESC(?totalSize)
+ORDER BY DESC(xsd:integer(?size))
 LIMIT 5`;
 
   const SPARQL_LATEST_QUERY = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -216,7 +207,7 @@ ORDER BY DESC(?lastModified)`;
 
   async function loadLargestCatalogData() {
     try {
-      const url = new URL(SPARQL_DATABUS_ENDPOINT);
+      const url = new URL(SPARQL_ENDPOINT);
       url.searchParams.set("query", SPARQL_LARGEST_QUERY);
       url.searchParams.set("format", "json");
 
@@ -233,21 +224,19 @@ ORDER BY DESC(?lastModified)`;
 
       return rows
         .map((row) => {
-          const groupUri = row.group?.value || "";
+          const groupUri = row.kg?.value || "";
           const id = extractKgId(groupUri);
           if (!id) return null;
 
           return {
             id,
-            name: row.title?.value || labelizeId(id),
-            sizeBytes: parseSizeBytes(row.totalSize?.value),
-            groupUri,
-            homepage: ""
+            sizeBytes: parseSizeBytes(row.size?.value),
+            groupUri
           };
         })
         .filter(Boolean);
     } catch (error) {
-      console.error("Could not load largest KG rankings from Databus:", error);
+      console.error("Could not load largest KG rankings from Moss:", error);
       return [];
     }
   }
@@ -468,7 +457,7 @@ ORDER BY DESC(?lastModified)`;
           "</div></div>" +
           '<div class="value">' +
           KGUtils.formatBytes(item.sizeBytes || 0) +
-          " published data</div>" +
+          "</div>" +
           "</li>"
         );
       })
@@ -830,12 +819,19 @@ ORDER BY DESC(?lastModified)`;
       }
       return acc;
     }, {});
+    const catalogById = enrichedCatalogData.reduce((acc, item) => {
+      if (!acc[item.id]) {
+        acc[item.id] = item;
+      }
+      return acc;
+    }, {});
     const enrichedLargestData = largestData.map((item) => {
-      const mossDomain = domainById[item.id] || {};
+      const catalogItem = catalogById[item.id] || {};
       return {
         ...item,
-        domain: mossDomain.domain || item.domain,
-        domainLabel: mossDomain.domainLabel || item.domainLabel || mossDomain.domain || item.domain
+        name: catalogItem.name || item.name || labelizeId(item.id),
+        domain: catalogItem.domain || item.domain || "",
+        domainLabel: catalogItem.domainLabel || item.domainLabel || catalogItem.domain || item.domain || ""
       };
     });
     const enrichedLatestData = latestData.map((item) => {
