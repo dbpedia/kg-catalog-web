@@ -31,48 +31,162 @@
     <div class="container">
       <section class="card detail">
         <h1>How to add a knowledge graph</h1>
-        <p class="lead">This page is under construction.</p>
-<!--        
-        <p class="lead">This catalog follows DBpedia governance principles: rich metadata, provenance, and reproducible access.</p>
+        <p class="lead">Follow these steps to add a new KG to the catalog and publish it through the DBpedia Databus workflow.</p>
 
-        <div class="callout">
-          Preferred path: publish artifacts in the DBpedia Databus namespace and then register your KG profile in the catalog index.
+        <h2 style="margin-top:1rem; font-size:1.08rem;">1. Clone the repository</h2>
+        <p>Start by cloning the catalog repository locally.</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="submit-clone">Copy</button>
+          <pre><code id="submit-clone">git clone git@github.com:m1ci/lod-next-gen.git</code></pre>
         </div>
 
-        <h2 style="margin-top:1rem; font-size:1.1rem;">Submission checklist</h2>
-        <ol class="steps">
-          <li>Prepare metadata: title, maintainer, version policy, license, domain tags, and documentation URL.</li>
-          <li>Publish distribution files and metadata records to DBpedia Databus.</li>
-          <li>Expose either a SPARQL endpoint or downloadable dumps with stable URIs.</li>
-          <li>Provide freshness signals: last update date and update frequency.</li>
-          <li>Submit your catalog record through a pull request or issue in the project repository.</li>
-        </ol>
-
-        <h2 style="margin-top:1rem; font-size:1.1rem;">Required fields</h2>
-        <ul class="steps">
-          <li>Graph identifier and canonical homepage</li>
-          <li>Domain classification and short abstract</li>
-          <li>Triple count, entity count, and dataset size</li>
-          <li>License and maintainer contact</li>
-          <li>Access methods: endpoint URL and/or dump URL</li>
-        </ul>
-
-        <div class="btn-row" style="margin-top:1rem;">
-          <a class="btn primary" target="_blank" rel="noopener" href="https://databus.dbpedia.org/knowledge-graph-catalog">Open Databus catalog</a>
-          <a class="btn secondary" target="_blank" rel="noopener" href="https://github.com/dbpedia">DBpedia on GitHub</a>
+        <h2 style="margin-top:1rem; font-size:1.08rem;">2. Create a KG folder</h2>
+        <p>Inside the <code>knowledge-graphs</code> directory, create a folder for your KG. Use the KG name as the folder name.</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="submit-folder">Copy</button>
+          <pre><code id="submit-folder">cd knowledge-graphs
+mkdir my-kg
+cd my-kg</code></pre>
         </div>
+
+        <h2 style="margin-top:1rem; font-size:1.08rem;">3. Add metadata</h2>
+        <p>Create a <code>metadata.yaml</code> file in that folder and fill in the required fields.</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="submit-touch">Copy</button>
+          <pre><code id="submit-touch">touch metadata.yaml</code></pre>
+        </div>
+
+        <p>The template below shows the expected structure. Update every field marked with <code>UPDATE</code> and leave the fixed fields as they are.</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="submit-yaml">Copy</button>
+          <pre><code id="submit-yaml">databus-account: knowledge-graph-catalog # Leave as is. Don't update.
+id: my-kg # UPDATE: set unique id of your KG. Check for already used ids at https://databus.dbpedia.org/knowledge-graph-catalog
+title: My First KG # UPDATE: set the title of the KG
+abstract: This is the coolest KG. # UPDATE: Provide short description of the KG (e.g. 2 sentences)
+description: 'This is the coolest KG.' # UPDATE: Provide extended description of the KG. You can either use free text or markdown syntax.
+moss-publish: true # UPDATE: set to true when publishing the KG for the first or when introduced updates to the general metadata of the KG.
+databus-publish: true # UPDATE: set to true when publishing the KG for the first time  or when introduced updates to the KG artifacts or versions.
+license: http://purl.oclc.org/NET/rdflicense/cc-by3.0 # UPDATE: Provide the general license for the KG
+homepage: https://example.org/ # UPDATE: home page for the KG, if exist.
+domains:
+- Cross-domain # UPDATE: the main domain reflecting the content of the KG. Choose from the 8 defined domains below.
+
+# Cross-domain
+# Geography & Environment
+# Government & Public Sector
+# Life Sciences & Health
+# Economy, Industry & Infrastructure
+# Publications, Education & Research
+# Media, Culture & Entertainment
+# Linguistics, Social & Digital Knowledge Systems
+# ...for more about domains see https://github.com/m1ci/lod-next-gen/blob/main/README.md
+
+keywords: # UPDATE: provide 3-8 keywords describing your KG
+- cross-domain
+- geography
+- intro
+sparql: # Provide SPARQL endpoint details, if endpoint is available
+- name: main
+  url: http://example.org/sparql
+maintainers: # UPDATE: add contact info of the KG maintainer
+- name: Chuck Norris
+  contact: Chuck.Norris@gmail.com
+  github: chuck # username on github
+artifacts: # UPDATE: provide list of artifacts associated with your KG. 
+# Typically an artifact corresponds to a partition of your KG (if your KG is provided in multiple partitions)
+- artifact: first-artifact # UPDATE: provide id for your artifact 
+  title: First Artifact # UPDATE: provide title for the artifact
+  abstract: My first artifact. # UPDATE: provide short description of the artifact (e.g. 2 sentences)
+  description: My first artifact. #UPDATE: provide extended description of the artifact
+  versions:
+  - version: 2026.07.10
+    title: First Artifact # UPDATE: provide title for the version
+    abstract: My first artifact # UPDATE: provide short description of the version (e.g. 2 sentences)
+    description: My first artifact # UPDATE: provide extended description of the version
+    license: http://purl.oclc.org/NET/rdflicense/cc-by3.0 # UPDATE: URL identifying the license
+    distributions: # here list all files assciated with the artifact and the version
+    - file: https://downloads.dbpedia.org/repo/dbpedia/mappings/instance-types/2020.06.01/instance-types_lang%3Dar_specific.ttl.bz2 # UPDATE: provide valid download URL
+      format: ttl # UPDATE: provide the format of the file, e.g. nt or ttl
+      compression: bz2 # UPDATE: if the file is compressed, e.g. bz2, indicate that info
+      status: pending # INFO: pending means that the catalog will be updated (then it will be set to active). Later, if you make any changes and want to propagate them to the catalog, set the flag to pending.</code></pre>
+        </div>
+
+        <h2 style="margin-top:1rem; font-size:1.08rem;">4. Commit and push</h2>
+        <p>After editing <code>metadata.yaml</code>, commit and push the changes.</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="submit-git">Copy</button>
+          <pre><code id="submit-git">git add -A
+git commit -m "adding new KG"
+git push</code></pre>
+        </div>
+
+        <h2 style="margin-top:1rem; font-size:1.08rem;">5. Wait for publication</h2>
+        <p>If everything goes well, your KG should appear soon in the <a class="inline-link" target="_blank" rel="noopener" href="https://kg-catalog.dbpedia.org/">DBpedia KG Catalog</a> and on the <a class="inline-link" target="_blank" rel="noopener" href="https://databus.dbpedia.org/knowledge-graph-catalog">Databus</a>.</p>
       </section>
--->
-      </div>
+    </div>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-row">
-      <span>Submission guidelines evolve with community feedback.</span>
+      <span>Submission guidelines for publishing a KG through the DBpedia Databus workflow.</span>
       <span><a href="about.html">About this catalog</a> · <a href="download.html">Download</a></span>
     </div>
   </footer>
 
   <script src="assets/js/common.js"></script>
+  <script>
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+      }
+
+      return new Promise(function (resolve, reject) {
+        var textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.top = "-9999px";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        var ok = false;
+        try {
+          ok = document.execCommand("copy");
+        } catch (error) {
+          ok = false;
+        }
+
+        document.body.removeChild(textarea);
+        if (ok) resolve();
+        else reject(new Error("Copy command failed"));
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var buttons = document.querySelectorAll(".code-copy");
+      if (!buttons.length) return;
+
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          var targetId = button.getAttribute("data-copy-target");
+          var target = document.getElementById(targetId);
+          if (!target) return;
+
+          copyText(target.textContent)
+            .then(function () {
+              button.textContent = "Copied";
+              setTimeout(function () {
+                button.textContent = "Copy";
+              }, 1500);
+            })
+            .catch(function (error) {
+              console.error("Could not copy submit command:", error);
+            });
+        });
+      });
+    });
+  </script>
 </body>
 </html>

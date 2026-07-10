@@ -660,6 +660,17 @@ h1 {
   color: var(--dbp-blue-2);
 }
 
+.inline-link {
+  color: var(--dbp-blue);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.inline-link:hover {
+  color: var(--dbp-blue-2);
+}
+
 .code-block {
   position: relative;
   margin: 0.8rem 0 0.2rem;
