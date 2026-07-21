@@ -615,6 +615,41 @@ h1 {
   padding: 1rem;
 }
 
+.submission-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  margin: 1.1rem 0 1.4rem;
+}
+
+.submission-option {
+  padding: 1rem;
+}
+
+.submission-option h2 {
+  margin-top: 0.65rem;
+  font-size: 1.15rem;
+}
+
+.submission-option-secondary h2 {
+  margin-top: 2.2rem;
+}
+
+.submission-option p {
+  min-height: 3.1rem;
+  color: var(--text-soft);
+}
+
+.submission-flow {
+  border-top: 1px solid var(--line);
+  margin-top: 1.3rem;
+  padding-top: 1.1rem;
+}
+
+.submission-flow h2 {
+  font-size: 1.25rem;
+}
+
 .kv {
   margin-top: 0.8rem;
   border-top: 1px solid var(--line);
@@ -801,6 +836,10 @@ h1 {
   }
 
   .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .submission-options {
     grid-template-columns: 1fr;
   }
 }
