@@ -11,6 +11,7 @@ PREFIX void: <http://rdfs.org/ns/void#>
 
 SELECT ?kgDatabusUri ?size ?homepage ?domain ?keyword ?sparqlEndpoint ?maintainerName ?maintainerMbox
 WHERE {
+  VALUES ?kgDatabusUri { <{{KG_DATABUS_URI}}> }
   ?kgDatabusUri a databus:Group ;
     dcat:byteSize ?size ;
     foaf:homepage ?homepage ;
@@ -24,6 +25,36 @@ WHERE {
     OPTIONAL { ?maintainer foaf:mbox ?maintainerMbox . }
   }
 }`;
+
+  const KG_DATABUS_BASE_URI = "https://databus.dbpedia.org/knowledge-graph-catalog/";
+
+  function getMossQuery(kgDatabusUri) {
+    return SPARQL_MOSS_QUERY.replace("{{KG_DATABUS_URI}}", kgDatabusUri);
+  }
+
+  const SPARQL_RELATED_MOSS_QUERY = `PREFIX databus: <https://dataid.dbpedia.org/databus#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT ?kgDatabusUri ?size ?domain
+WHERE {
+  VALUES ?domain { "{{DOMAIN_VALUE}}" }
+  ?kgDatabusUri a databus:Group ;
+    dcat:byteSize ?size ;
+    dcterms:subject ?domain .
+}`;
+
+  function escapeSparqlString(value) {
+    return String(value || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\r/g, "\\r")
+      .replace(/\n/g, "\\n");
+  }
+
+  function getRelatedMossQuery(domainValue) {
+    return SPARQL_RELATED_MOSS_QUERY.replace("{{DOMAIN_VALUE}}", escapeSparqlString(domainValue));
+  }
 
   const SPARQL_METADATA_QUERY = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX databus: <https://dataid.dbpedia.org/databus#>
@@ -354,9 +385,9 @@ ORDER BY DESC(?lastModified)`;
       "</section>";
   }
 
-  async function loadCatalogData() {
+  async function loadCatalogData(kgDatabusUri) {
     const url = new URL(SPARQL_MOSS_ENDPOINT);
-    url.searchParams.set("query", SPARQL_MOSS_QUERY);
+    url.searchParams.set("query", getMossQuery(kgDatabusUri));
     url.searchParams.set("format", "json");
 
     const response = await fetch(url.toString(), {
@@ -387,7 +418,8 @@ ORDER BY DESC(?lastModified)`;
         description: "",
         lastUpdated: "",
         license: "",
-        kgDatabusUri
+        kgDatabusUri,
+        sourceDomainUri: row.domain?.value || ""
       };
 
       if (!grouped.has(id)) {
@@ -413,6 +445,45 @@ ORDER BY DESC(?lastModified)`;
           });
         }
       }
+    });
+
+    return Array.from(grouped.values());
+  }
+
+  async function loadRelatedCatalogData(domainUri) {
+    if (!domainUri) return [];
+
+    const url = new URL(SPARQL_MOSS_ENDPOINT);
+    url.searchParams.set("query", getRelatedMossQuery(domainUri));
+    url.searchParams.set("format", "json");
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: { Accept: "application/sparql-results+json" }
+    });
+    if (!response.ok) throw new Error("Related Moss request failed: " + response.status);
+
+    const payload = await response.json();
+    const rows = payload?.results?.bindings || [];
+    const grouped = new Map();
+
+    rows.forEach((row) => {
+      const kgDatabusUri = row.kgDatabusUri?.value || "";
+      const id = extractLastSegment(kgDatabusUri);
+      if (!id) return;
+
+      const existing = grouped.get(id) || {
+        id,
+        name: labelizeId(id),
+        domain: labelizeDomain(row.domain?.value || ""),
+        sizeBytes: 0,
+        lastUpdated: "",
+        kgDatabusUri,
+        sourceDomainUri: row.domain?.value || ""
+      };
+
+      existing.sizeBytes = Math.max(existing.sizeBytes, parseSizeBytes(row.size?.value));
+      grouped.set(id, existing);
     });
 
     return Array.from(grouped.values());
@@ -458,7 +529,8 @@ ORDER BY DESC(?lastModified)`;
     renderLoading();
 
     try {
-      const [catalog, metadataById] = await Promise.all([loadCatalogData(), loadKgMetadataMap()]);
+      const kgDatabusUri = KG_DATABUS_BASE_URI + encodeURIComponent(id);
+      const [catalog, metadataById] = await Promise.all([loadCatalogData(kgDatabusUri), loadKgMetadataMap()]);
       const merged = catalog.map((item) => {
         const metadata = metadataById[item.id] || {};
         return {
@@ -477,6 +549,22 @@ ORDER BY DESC(?lastModified)`;
       }
 
       renderKG(item, merged);
+
+      try {
+        const relatedCatalog = await loadRelatedCatalogData(item.sourceDomainUri);
+        const related = relatedCatalog.map((relatedItem) => {
+          const metadata = metadataById[relatedItem.id] || {};
+          return {
+            ...relatedItem,
+            name: metadata.name || relatedItem.name,
+            lastUpdated: metadata.lastUpdated || relatedItem.lastUpdated,
+            license: metadata.license || relatedItem.license
+          };
+        });
+        renderKG(item, [item, ...related]);
+      } catch (error) {
+        console.error("Could not load related KG data:", error);
+      }
     } catch (error) {
       console.error("Could not load KG profile data:", error);
       renderNotFound(id);

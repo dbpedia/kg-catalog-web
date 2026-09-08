@@ -376,11 +376,12 @@ ORDER BY DESC(?lastModified)`;
       };
     }
 
-    let current = null;
-    let start = null;
-    let target = null;
+    let current = 0;
+    let start = 0;
+    const estimatedTotalBytes = 1.2 * 1000 * 1000 * 1000 * 1000;
+    let target = estimatedTotalBytes;
     let duration = 4500;
-    let startedAt = 0;
+    let startedAt = performance.now();
     let frameId = null;
 
     function tick(now) {
@@ -398,9 +399,6 @@ ORDER BY DESC(?lastModified)`;
       }
     }
 
-    current = 1000 * 1000 * 1000;
-    start = current;
-    target = 150 * 1000 * 1000 * 1000;
     statTotalSize.textContent = KGUtils.formatBytes(current);
     frameId = window.requestAnimationFrame(tick);
 
@@ -412,12 +410,11 @@ ORDER BY DESC(?lastModified)`;
           return;
         }
 
-        if (frameId) window.cancelAnimationFrame(frameId);
-        start = current;
         target = nextTarget;
-        duration = 4500;
-        startedAt = performance.now();
-        frameId = window.requestAnimationFrame(tick);
+        if (performance.now() - startedAt >= duration) {
+          current = target;
+          statTotalSize.textContent = KGUtils.formatBytes(target);
+        }
       }
     };
   }
