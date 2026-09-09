@@ -347,7 +347,7 @@ ORDER BY DESC(?lastModified)`;
       "<div>Maintainer(s)</div><div>" +
       maintainersText +
       "</div>" +
-      "<div>Databus page</div><div><a target=\"_blank\" rel=\"noopener\" href=\"" +
+      "<div>Databus KG download</div><div><a target=\"_blank\" rel=\"noopener\" href=\"" +
       e(item.kgDatabusUri || "") +
       "\">" +
       e(item.kgDatabusUri || "n/a") +

@@ -123,5 +123,6 @@
   "https://databus.dbpedia.org/app/publish-wizard": "UNKNOWN",
   "http://google.com": "UNKNOWN",
   "https://dalicc.net/licenselibrary/Apache-1.1": "Apache-1.1",
-  "https://creativecommons.org/publicdomain/zero/1.0/deed.en": "CC0-1.0"
+  "https://creativecommons.org/publicdomain/zero/1.0/deed.en": "CC0-1.0",
+  "https://opendatacommons.org/licenses/by-1-0/": "ODC-By 1.0"
 }

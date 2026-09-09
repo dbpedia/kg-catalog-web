@@ -242,15 +242,32 @@ h1 {
   border-radius: 12px;
   box-shadow: var(--shadow);
   padding: 1rem;
+  min-height: 6.25rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .stat-cell b {
   display: block;
   font-size: 1.35rem;
   color: var(--dbp-blue);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+#statGraphs,
+#statUpdated30,
+#statTotalSize {
+  margin-top: 0.7rem;
+}
+
+#statTopDomain {
+  font-size: 1.05rem;
 }
 
 .stat-cell span {
+  margin-top: auto;
+  padding-top: 0.55rem;
   color: var(--text-soft);
   font-size: 0.82rem;
 }
@@ -754,7 +771,7 @@ body[data-page="about"] .detail h2 {
   margin-top: 0.8rem;
   border-top: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(8.75rem, 1fr) minmax(0, 3fr);
 }
 
 .kv div {
@@ -765,6 +782,11 @@ body[data-page="about"] .detail h2 {
 
 .kv div:nth-child(odd) {
   color: var(--text-soft);
+}
+
+.kv div:nth-child(even) {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .detail .lead p {
@@ -786,14 +808,16 @@ body[data-page="about"] .detail h2 {
 }
 
 .detail p a,
-.detail li a {
+.detail li a,
+.detail .kv a {
   color: var(--dbp-blue);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .detail p a:hover,
-.detail li a:hover {
+.detail li a:hover,
+.detail .kv a:hover {
   color: var(--dbp-blue-2);
 }
 
