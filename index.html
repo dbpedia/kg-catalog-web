@@ -30,8 +30,8 @@
   <main>
     <div class="container">
       <section class="landing-intro">
-        <h1>The Open Knowledge Graph Catalog</h1>
-        <p class="lead">Explore open knowledge graphs in one modern and interactive catalog. Compare graph size, freshness, and access details before diving into each profile.</p>
+        <h1>The Knowledge Graph Catalog</h1>
+        <p class="lead">An open, community-driven catalog of knowledge graphs, built on open standards and open to everyone. Discover, compare, and contribute knowledge graphs in one modern, interactive place.</p>
       </section>
 
       <section class="landing-viz">
@@ -68,19 +68,27 @@
         </div>
       </section>
 
+      <section class="new-arrivals" aria-labelledby="recently-added-heading">
+        <div class="panel-head">
+          <h2 id="recently-added-heading">Recently Added KGs</h2>
+          <a href="catalog.html?sort=added">View all →</a>
+        </div>
+        <ol id="recently-added-list" class="new-arrivals-list"></ol>
+      </section>
+
       <section class="section-grid">
         <article class="card panel-card">
           <div class="panel-head">
             <h2>Largest KGs</h2>
-            <a href="catalog.html?sort=size">See all</a>
+            <a href="catalog.html?sort=size">View all →</a>
           </div>
           <ol id="largest-list" class="list"></ol>
         </article>
 
         <article class="card panel-card">
           <div class="panel-head">
-            <h2>Recently updated KGs</h2>
-            <a href="catalog.html?sort=updated">See all</a>
+            <h2>Recently Updated KGs</h2>
+            <a href="catalog.html?sort=updated">View all →</a>
           </div>
           <ol id="latest-list" class="list"></ol>
         </article>

@@ -21,7 +21,7 @@ SELECT ?kg ?size WHERE {
       dcat:byteSize ?size .
 }
 ORDER BY DESC(xsd:integer(?size))
-LIMIT 5`;
+LIMIT 10`;
 
   const SPARQL_LATEST_QUERY = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX databus: <https://dataid.dbpedia.org/databus#>
@@ -36,6 +36,22 @@ WHERE {
 }
 GROUP BY ?kg ?kgTitle
 ORDER BY DESC(?lastModified)
+LIMIT 10`;
+
+  // A KG is added when its first Databus version is issued. This deliberately
+  // differs from the latest-updates query, which uses the newest modification.
+  const SPARQL_RECENTLY_ADDED_QUERY = `PREFIX databus: <https://dataid.dbpedia.org/databus#>
+PREFIX dct: <http://purl.org/dc/terms/>
+
+SELECT ?kg ?kgTitle (MIN(?issued) AS ?addedAt)
+WHERE {
+  ?kg databus:account <https://databus.dbpedia.org/knowledge-graph-catalog> ;
+      dct:title ?kgTitle .
+  ?version databus:group ?kg ;
+           dct:issued ?issued .
+}
+GROUP BY ?kg ?kgTitle
+ORDER BY DESC(?addedAt)
 LIMIT 5`;
 
   const SPARQL_UPDATED_30D_QUERY = `PREFIX databus: <https://dataid.dbpedia.org/databus#>
@@ -281,6 +297,43 @@ ORDER BY DESC(?lastModified)`;
     }
   }
 
+  async function loadRecentlyAddedCatalogData() {
+    try {
+      const url = new URL(SPARQL_DATABUS_ENDPOINT);
+      url.searchParams.set("query", SPARQL_RECENTLY_ADDED_QUERY);
+      url.searchParams.set("format", "json");
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          Accept: "application/sparql-results+json"
+        }
+      });
+
+      if (!response.ok) throw new Error("SPARQL request failed: " + response.status);
+      const payload = await response.json();
+      const rows = payload?.results?.bindings || [];
+
+      return rows
+        .map((row) => {
+          const groupUri = row.kg?.value || "";
+          const id = extractKgId(groupUri);
+          if (!id) return null;
+
+          return {
+            id,
+            name: row.kgTitle?.value || labelizeId(id),
+            addedAt: row.addedAt?.value || "",
+            groupUri
+          };
+        })
+        .filter(Boolean);
+    } catch (error) {
+      console.error("Could not load recently added KGs from Databus:", error);
+      return [];
+    }
+  }
+
   async function loadUpdatedKGCount() {
     try {
       const url = new URL(SPARQL_DATABUS_ENDPOINT);
@@ -438,7 +491,7 @@ ORDER BY DESC(?lastModified)`;
 
   function renderLargest(data) {
     const root = document.getElementById("largest-list");
-    const sorted = data.slice().sort((a, b) => (b.sizeBytes || 0) - (a.sizeBytes || 0)).slice(0, 5);
+    const sorted = data.slice().sort((a, b) => (b.sizeBytes || 0) - (a.sizeBytes || 0)).slice(0, 10);
     if (!sorted.length) {
       root.innerHTML = '<li class="list-item"><div class="meta">No KG data returned from Databus.</div></li>';
       return;
@@ -473,7 +526,7 @@ ORDER BY DESC(?lastModified)`;
       root.innerHTML = '<li class="list-item"><div class="meta">No update dates are available from the Databus query.</div></li>';
       return;
     }
-    const sorted = withDates.sort((a, b) => KGUtils.daysSince(a.lastUpdated) - KGUtils.daysSince(b.lastUpdated)).slice(0, 5);
+    const sorted = withDates.sort((a, b) => KGUtils.daysSince(a.lastUpdated) - KGUtils.daysSince(b.lastUpdated)).slice(0, 10);
     root.innerHTML = sorted
       .map((item, i) => {
         return (
@@ -494,6 +547,32 @@ ORDER BY DESC(?lastModified)`;
           "</li>"
         );
       })
+      .join("");
+  }
+
+  function renderRecentlyAdded(data) {
+    const root = document.getElementById("recently-added-list");
+    if (!root) return;
+
+    const sorted = data
+      .filter((item) => item.addedAt)
+      .sort((a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt))
+      .slice(0, 5);
+
+    if (!sorted.length) {
+      root.innerHTML = '<li class="new-arrival-empty meta">No catalog addition dates are available from Databus.</li>';
+      return;
+    }
+
+    root.innerHTML = sorted
+      .map((item) => (
+        '<li class="new-arrival-item">' +
+        '<a href="kg.html?id=' + encodeURIComponent(item.id) + '">' +
+        '<span class="new-arrival-name">' + item.name + '</span>' +
+        '<span class="new-arrival-date">Added ' + KGUtils.formatRelative(item.addedAt) + '</span>' +
+        '</a>' +
+        '</li>'
+      ))
       .join("");
   }
 
@@ -795,10 +874,11 @@ ORDER BY DESC(?lastModified)`;
       if (totalSizeCounter) totalSizeCounter.setTarget(totalPublishedBytes);
     });
 
-    const [data, largestData, latestData, updatedCount, metadataById] = await Promise.all([
+    const [data, largestData, latestData, recentlyAddedData, updatedCount, metadataById] = await Promise.all([
       loadCatalogData(),
       loadLargestCatalogData(),
       loadLatestCatalogData(),
+      loadRecentlyAddedCatalogData(),
       loadUpdatedKGCount(),
       loadKgMetadataMap()
     ]);
@@ -847,6 +927,7 @@ ORDER BY DESC(?lastModified)`;
     renderStats(enrichedCatalogData, updatedCount);
     renderLargest(enrichedLargestData.length ? enrichedLargestData : enrichedCatalogData);
     renderLatest(enrichedLatestData);
+    renderRecentlyAdded(recentlyAddedData);
     renderViz(enrichedCatalogData);
   });
 })();

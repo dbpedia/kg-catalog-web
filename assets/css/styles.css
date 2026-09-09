@@ -474,6 +474,70 @@ h1 {
   gap: 1rem;
 }
 
+.new-arrivals {
+  height: 108px;
+  margin-top: 1.3rem;
+  padding: 1rem 1rem 0.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.new-arrivals .panel-head {
+  margin-bottom: 0.35rem;
+}
+
+.new-arrivals .panel-head a {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.new-arrivals-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.4rem 0 0;
+  list-style: none;
+}
+
+.new-arrival-item a {
+  display: flex;
+  min-height: 46px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.2rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 7px;
+  transition: background 160ms ease;
+}
+
+.new-arrival-item a:hover,
+.new-arrival-item a:focus-visible {
+  background: var(--surface-alt);
+}
+
+.new-arrival-item + .new-arrival-item {
+  border-left: 1px solid var(--line);
+}
+
+.new-arrival-name {
+  overflow: hidden;
+  color: var(--dbp-blue);
+  font-size: 0.92rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.new-arrival-date {
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.1;
+}
+
+.new-arrival-empty {
+  padding-top: 0.6rem;
+}
+
 .panel-card {
   padding: 1rem 1rem 0.25rem;
 }
@@ -495,6 +559,11 @@ h1 {
   font-weight: 700;
 }
 
+.panel-card .panel-head a {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
 .list {
   margin: 0;
   padding: 0;
@@ -508,10 +577,16 @@ h1 {
   grid-template-columns: auto 1fr auto;
   gap: 0.7rem;
   align-items: center;
+  transition: background 160ms ease;
 }
 
 .list-item:first-child {
   border-top: none;
+}
+
+.panel-card .list-item:has(.name:hover),
+.panel-card .list-item:focus-within {
+  background: var(--surface-alt);
 }
 
 .rank {
@@ -522,8 +597,17 @@ h1 {
 }
 
 .name {
+  color: var(--dbp-blue);
   font-weight: 700;
   font-size: 0.92rem;
+}
+
+.name:hover,
+.name:focus-visible,
+.new-arrival-item a:hover .new-arrival-name,
+.new-arrival-item a:focus-visible .new-arrival-name {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
 }
 
 .meta {
@@ -533,7 +617,7 @@ h1 {
 
 .value {
   font-weight: 700;
-  color: var(--dbp-blue);
+  color: var(--text);
   font-size: 0.84rem;
 }
 
@@ -615,6 +699,22 @@ h1 {
   padding: 1rem;
 }
 
+body[data-page="about"] .detail h2 {
+  margin-top: 1.4rem;
+  font-size: 1.25rem;
+}
+
+.acknowledgement-logo {
+  display: block;
+  width: min(100%, 320px);
+  margin: 0.65rem 0;
+}
+
+.acknowledgement-logo img {
+  width: 100%;
+  height: auto;
+}
+
 .submission-options {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -685,13 +785,15 @@ h1 {
   padding: 0.05rem 0.3rem;
 }
 
-.detail .lead a {
+.detail p a,
+.detail li a {
   color: var(--dbp-blue);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.detail .lead a:hover {
+.detail p a:hover,
+.detail li a:hover {
   color: var(--dbp-blue-2);
 }
 
@@ -841,6 +943,21 @@ h1 {
 
   .submission-options {
     grid-template-columns: 1fr;
+  }
+
+  .new-arrivals {
+    overflow: hidden;
+  }
+
+  .new-arrivals-list {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+    scrollbar-width: thin;
+  }
+
+  .new-arrival-item {
+    flex: 0 0 158px;
   }
 }
 

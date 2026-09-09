@@ -16,7 +16,7 @@
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 
-SELECT ?kg ?kgTitle ?lastModified ?license
+SELECT ?kg ?kgTitle ?lastModified ?addedAt ?license
 WHERE {
   {
     SELECT ?kg (MAX(?modified) AS ?lastModified)
@@ -25,6 +25,15 @@ WHERE {
 
       ?version databus:group ?kg ;
                dct:modified ?modified .
+    }
+    GROUP BY ?kg
+  }
+
+  {
+    SELECT ?kg (MIN(?issued) AS ?addedAt)
+    WHERE {
+      ?version databus:group ?kg ;
+               dct:issued ?issued .
     }
     GROUP BY ?kg
   }
@@ -105,6 +114,8 @@ select ?kgDatabusUri ?size ?domain where {
       list.sort((a, b) => b.sizeBytes - a.sizeBytes);
     } else if (filters.sort === "recent") {
       list.sort((a, b) => KGUtils.daysSince(a.lastUpdated) - KGUtils.daysSince(b.lastUpdated));
+    } else if (filters.sort === "added") {
+      list.sort((a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt));
     } else {
       list.sort((a, b) => a.name.localeCompare(b.name));
     }
@@ -164,6 +175,7 @@ select ?kgDatabusUri ?size ?domain where {
     const domain = params.get("domain");
     if (sort === "size") document.getElementById("sort").value = "size";
     if (sort === "updated") document.getElementById("sort").value = "recent";
+    if (sort === "added") document.getElementById("sort").value = "added";
     if (domain && DOMAINS.includes(domain)) document.getElementById("domain").value = domain;
   }
 
@@ -228,6 +240,7 @@ select ?kgDatabusUri ?size ?domain where {
             id,
             name: row.kgTitle && row.kgTitle.value ? row.kgTitle.value : labelizeId(id),
             lastUpdated: row.lastModified && row.lastModified.value ? row.lastModified.value : "",
+            addedAt: row.addedAt && row.addedAt.value ? row.addedAt.value : "",
             license: row.license && row.license.value ? row.license.value : "",
             sizeBytes: mossMetadata.sizeBytes || 0,
             kgUri,
