@@ -107,6 +107,45 @@ ORDER BY DESC(?lastModified)`;
     }
   }
 
+  function renderDpid(dpid) {
+    const value = String(dpid || "").trim();
+    const href = sanitizeHref(value);
+    if (!href) return "";
+
+    return (
+      '<div class="dpid" data-dpid="' +
+      e(href) +
+      '">' +
+      '<span class="dpid-label">KG-PID</span>' +
+      '<a class="dpid-value" href="' +
+      e(href) +
+      '" target="_blank" rel="noopener">' +
+      e(href) +
+      '</a>' +
+      '<span class="dpid-actions">' +
+      '<a class="dpid-icon-link" href="' +
+      e(href) +
+      '" target="_blank" rel="noopener" title="Open KG-PID in new tab" aria-label="Open KG-PID in new tab">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-9 9"></path><path d="M19 13v6H5V5h6"></path></svg>' +
+      '</a>' +
+      '<button class="dpid-icon-btn dpid-copy-btn" type="button" data-copy-value="' +
+      e(href) +
+      '" title="Copy KG-PID" aria-label="Copy KG-PID">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="10" height="10" rx="1"></rect><path d="M15 9V5H5v10h4"></path></svg>' +
+      '</button>' +
+      '<details class="dpid-help-wrap">' +
+      '<summary class="dpid-icon-btn" title="What is a KG-PID?" aria-label="What is a KG-PID?">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.01"></path></svg>' +
+      '</summary>' +
+      '<div class="dpid-help">' +
+      '<strong>KG-PID</strong> is the stable Databus identifier for this KG catalog entry. Use it to refer to the Knowledge Graph independently of a particular release. The same identifier is accepted by the <a href="download.html">KG Catalog Python client</a>.' +
+      '</div>' +
+      '</details>' +
+      '</span>' +
+      '</div>'
+    );
+  }
+
   function renderMarkdown(text) {
     const source = String(text || "").trim();
     if (!source) return "";
@@ -312,6 +351,7 @@ ORDER BY DESC(?lastModified)`;
       : "n/a";
 
     const descriptionHtml = renderMarkdown(item.description || "No description provided in Databus metadata.");
+    const dpidHtml = renderDpid(item.kgDatabusUri);
 
     root.innerHTML =
       '<section class="kg-grid">' +
@@ -324,6 +364,7 @@ ORDER BY DESC(?lastModified)`;
       '<h1 style="margin-top:.6rem;">' +
       e(item.name) +
       "</h1>" +
+      dpidHtml +
       '<div class="lead">' +
       descriptionHtml +
       "</div>" +
@@ -569,5 +610,27 @@ ORDER BY DESC(?lastModified)`;
       console.error("Could not load KG profile data:", error);
       renderNotFound(id);
     }
+  });
+
+  document.addEventListener("click", function (event) {
+    const button = event.target instanceof Element ? event.target.closest(".dpid-copy-btn") : null;
+    if (!button) return;
+
+    const value = String(button.getAttribute("data-copy-value") || "").trim();
+    if (!value || !navigator.clipboard?.writeText) return;
+
+    navigator.clipboard.writeText(value).then(function () {
+      const oldLabel = button.getAttribute("aria-label") || "Copy KG-PID";
+      const oldTitle = button.getAttribute("title") || "Copy KG-PID";
+      button.setAttribute("aria-label", "Copied");
+      button.setAttribute("title", "Copied");
+      button.classList.add("copied");
+
+      window.setTimeout(function () {
+        button.setAttribute("aria-label", oldLabel);
+        button.setAttribute("title", oldTitle);
+        button.classList.remove("copied");
+      }, 1200);
+    });
   });
 })();

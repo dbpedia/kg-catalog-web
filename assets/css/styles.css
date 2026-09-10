@@ -716,6 +716,120 @@ h1 {
   padding: 1rem;
 }
 
+.dpid {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  max-width: 100%;
+  margin: 0.2rem 0 0.8rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  background: #fafafa;
+  font-size: 0.9rem;
+}
+
+.dpid-label {
+  flex: 0 0 auto;
+  padding: 0.12rem 0.35rem;
+  border-radius: 0.25rem;
+  background: #ececec;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dpid-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dbp-blue);
+  text-decoration: none;
+}
+
+.dpid-value:hover,
+.dpid-value:focus-visible {
+  color: var(--dbp-blue-2);
+}
+
+.dpid-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  margin-left: 0.15rem;
+}
+
+.dpid-icon-btn,
+.dpid-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.3rem;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.dpid-icon-btn:hover,
+.dpid-icon-btn:focus-visible,
+.dpid-icon-link:hover,
+.dpid-icon-link:focus-visible {
+  background: #eee;
+  color: #111;
+}
+
+.dpid svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.dpid-help-wrap {
+  position: relative;
+}
+
+.dpid-help-wrap summary {
+  list-style: none;
+}
+
+.dpid-help-wrap summary::-webkit-details-marker {
+  display: none;
+}
+
+.dpid-help {
+  position: absolute;
+  right: 0;
+  top: 2.15rem;
+  z-index: 10;
+  width: min(310px, calc(100vw - 3rem));
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 0.45rem;
+  background: #fff;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12);
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.detail .dpid-help a {
+  color: var(--dbp-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.dpid-copy-btn.copied {
+  color: #198754;
+  background: #eef8f1;
+}
+
 body[data-page="about"] .detail h2 {
   margin-top: 1.4rem;
   font-size: 1.25rem;
@@ -963,6 +1077,20 @@ body[data-page="about"] .detail h2 {
 
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dpid {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .dpid-actions {
+    margin-left: 0;
+  }
+
+  .dpid-help {
+    right: auto;
+    left: 0;
   }
 
   .submission-options {
