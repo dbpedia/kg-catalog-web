@@ -719,22 +719,22 @@ h1 {
 .dpid {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.3rem;
   max-width: 100%;
-  margin: 0.2rem 0 0.8rem;
-  padding: 0.45rem 0.6rem;
+  margin: 0.15rem 0 0.65rem;
+  padding: 0.3rem 0.45rem;
   border: 1px solid var(--line);
-  border-radius: 0.45rem;
+  border-radius: 0.4rem;
   background: #fafafa;
-  font-size: 0.9rem;
+  font-size: 0.84rem;
 }
 
 .dpid-label {
   flex: 0 0 auto;
-  padding: 0.12rem 0.35rem;
-  border-radius: 0.25rem;
+  padding: 0.1rem 0.28rem;
+  border-radius: 0.22rem;
   background: #ececec;
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
@@ -756,8 +756,8 @@ h1 {
 .dpid-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.1rem;
-  margin-left: 0.15rem;
+  gap: 0.05rem;
+  margin-left: 0.05rem;
 }
 
 .dpid-icon-btn,
@@ -765,11 +765,11 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.55rem;
+  height: 1.55rem;
   padding: 0;
   border: 0;
-  border-radius: 0.3rem;
+  border-radius: 0.24rem;
   background: transparent;
   color: #666;
   cursor: pointer;
@@ -785,8 +785,8 @@ h1 {
 }
 
 .dpid svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
