@@ -116,6 +116,17 @@ WHERE {
 GROUP BY ?kg ?kgTitle ?kgDescription ?lastModified
 ORDER BY DESC(?lastModified)`;
 
+  // Temporary toggle for the homepage "Recently Added KGs" section.
+  // Set to false to restore the live Databus query results.
+  const USE_HARDCODED_RECENTLY_ADDED = true;
+  const HARDCODED_RECENTLY_ADDED = [
+    { id: "dbpedia-live-fusion-kg", name: "DBpedia Live Fusion KG", addedAt: "2026-09-09T10:15:00Z" },
+    { id: "dbpedia-wikipedia-kg-all-languages", name: "DBpedia Wikipedia KG", addedAt: "2026-09-09T09:00:00Z" },
+    { id: "dbpedia-wikipedia-enriched-en", name: "DBpedia Wikipedia KG — Enriched (EN)", addedAt: "2026-09-08T14:40:00Z" },
+    { id: "orkg", name: "Open Research KG", addedAt: "2026-06-30T08:30:00Z" },
+    { id: "en-dbpedia-kg", name: "English DBpedia KG", addedAt: "2026-09-10T08:30:00Z" }
+  ];
+
   function extractLastSegment(value) {
     const text = String(value || "").replace(/\/+$/, "");
     const hashIndex = text.lastIndexOf("#");
@@ -870,6 +881,10 @@ ORDER BY DESC(?lastModified)`;
   document.addEventListener("DOMContentLoaded", async function () {
     const totalSizeCounter = createTotalSizeCounter();
     const totalSizePromise = loadTotalPublishedBytes();
+    const recentlyAddedPromise = USE_HARDCODED_RECENTLY_ADDED
+      ? Promise.resolve(HARDCODED_RECENTLY_ADDED)
+      : loadRecentlyAddedCatalogData();
+
     totalSizePromise.then((totalPublishedBytes) => {
       if (totalSizeCounter) totalSizeCounter.setTarget(totalPublishedBytes);
     });
@@ -878,7 +893,7 @@ ORDER BY DESC(?lastModified)`;
       loadCatalogData(),
       loadLargestCatalogData(),
       loadLatestCatalogData(),
-      loadRecentlyAddedCatalogData(),
+      recentlyAddedPromise,
       loadUpdatedKGCount(),
       loadKgMetadataMap()
     ]);

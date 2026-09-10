@@ -316,7 +316,7 @@ ORDER BY DESC(?lastModified)`;
     const related = all
       .filter((x) => x.domain === item.domain && x.id !== item.id)
       .sort((a, b) => (b.sizeBytes || 0) - (a.sizeBytes || 0))
-      .slice(0, 4);
+      .slice(0, 7);
 
     const lastUpdatedText = item.lastUpdated
       ? e(KGUtils.formatDateTime(item.lastUpdated)) + " (" + e(KGUtils.formatRelative(item.lastUpdated)) + ")"
