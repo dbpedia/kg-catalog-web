@@ -55,12 +55,32 @@
   download --all-versions https://databus.dbpedia.org/knowledge-graph-catalog/orkg</code></pre>
         </div>
 
-<!--        <h2 style="margin-top:1rem; font-size:1.08rem;">Whole catalog</h2>
-        <p>todo</p>
--->
-
-<!--        <p>The catalog itself can be traversed through Databus or SPARQL. This is the right path when you want a complete snapshot of all knowledge graphs and their metadata.</p>
--->
+        <h2 style="margin-top:1rem; font-size:1.08rem;">Download the latest versions of all KGs</h2>
+        <p>Download the latest version of each artifact for every KG in the catalog with one command. The script discovers KGs through Databus and downloads up to 3 KGs in parallel by default.</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="download-all-kgs-latest">Copy</button>
+          <pre><code id="download-all-kgs-latest">curl -fsSLO https://raw.githubusercontent.com/dbpedia/kg-catalog/main/scripts/download-all-kgs.sh &amp;&amp; bash download-all-kgs.sh</code></pre>
+        </div>
+        <p>To change the number of simultaneous KG downloads (e.g., to 10), run:</p>
+        <div class="code-block">
+          <button class="btn secondary code-copy" type="button" data-copy-target="download-all-kgs-parallel">Copy</button>
+          <pre><code id="download-all-kgs-parallel">PARALLEL_DOWNLOADS=10 bash download-all-kgs.sh</code></pre>
+        </div>
+        <details>
+          <summary>Other configuration options</summary>
+          <p>Set these environment variables before <code>bash download-all-kgs.sh</code>:</p>
+          <ul>
+            <li><code>MAX_SECONDS</code> — timeout per KG in seconds (default: <code>172800</code>, 48 hours; <code>0</code> disables).</li>
+            <li><code>MAX_KGS</code> — limit how many KGs are downloaded (default: <code>0</code>, all KGs).</li>
+            <li><code>OUTPUT_DIR</code> — directory for downloads and reports (default: <code>kg-catalog-download-test</code> beside the script).</li>
+            <li><code>DISCOVERY_TIMEOUT</code> — discovery request timeout in seconds (default: <code>45</code>).</li>
+            <li><code>GROUPS_FILE</code> — optional text file with one Databus group URL per line, to download selected KGs.</li>
+            <li><code>USER_AGENT</code> — HTTP User-Agent to use for downloads (default: DBpedia Databus Python Client).</li>
+            <li><code>VENV_DIR</code> — optional location for the local Python virtual environment.</li>
+          </ul>
+          <p>For example: <code>MAX_KGS=5 MAX_SECONDS=3600 bash download-all-kgs.sh</code></p>
+        </details>
+        <p>The script sets up its Python dependencies automatically and saves downloads and a per-KG report locally. Some files require a Vault token (<code>vault-token.dat</code> alongside the script). Large KGs can require substantial disk space and download time. Review the <a href="https://github.com/dbpedia/kg-catalog/blob/main/scripts/download-all-kgs.sh" target="_blank" rel="noopener">script on GitHub</a> before running it.</p>
       </section>
     </div>
   </main>
