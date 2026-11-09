@@ -34,25 +34,25 @@
         <p class="lead">This page explains the supported ways to download one KG, one version, or the full catalog from Databus and related sources.</p>
 
         <h2 style="margin-top:1rem; font-size:1.08rem;">Download the latest version of a KG</h2>
-        <p>First, open the KG profile page (e.g., <a href="kg.html?id=orkg">ORKG</a>) and identify the Databus identifier for the knowledge graph you want to download.</p>
-        <p>Then, use the following Docker command to download the latest version of the KG. The example below is for ORKG:</p>
+        <p>First, open the KG profile page (e.g., <a href="kg.html?id=dblp">DBLP</a>) and identify the Databus identifier for the knowledge graph you want to download.</p>
+        <p>Then, use the following Docker command to download the latest version of the KG. The example below is for DBLP:</p>
         <div class="code-block">
-          <button class="btn secondary code-copy" type="button" data-copy-target="download-orkg-latest">Copy</button>
-          <pre><code id="download-orkg-latest">docker run --rm \
+          <button class="btn secondary code-copy" type="button" data-copy-target="download-dblp-latest">Copy</button>
+          <pre><code id="download-dblp-latest">docker run --rm \
   -v "$(pwd)":/data \
   dbpedia/databus-python-client \
-  download https://databus.dbpedia.org/knowledge-graph-catalog/orkg</code></pre>
+  download https://databus.dbpedia.org/knowledge-graph-catalog/dblp</code></pre>
         </div>
 
         <h2 style="margin-top:1rem; font-size:1.08rem;">Download all versions of a KG</h2>
-        <p>First, open the KG profile page (E.g., <a href="kg.html?id=orkg">ORKG</a>) and identify the Databus identifier for the knowledge graph you want to download.</p>
-        <p>Then, use the following Docker command to download all versions of the KG. The example below is for ORKG and uses the --all-versions flag:</p>
+        <p>First, open the KG profile page (E.g., <a href="kg.html?id=dblp">DBLP</a>) and identify the Databus identifier for the knowledge graph you want to download.</p>
+        <p>Then, use the following Docker command to download all versions of the KG. The example below is for DBLP and uses the --all-versions flag:</p>
         <div class="code-block">
-          <button class="btn secondary code-copy" type="button" data-copy-target="download-orkg-all">Copy</button>
-          <pre><code id="download-orkg-all">docker run --rm \
+          <button class="btn secondary code-copy" type="button" data-copy-target="download-dblp-all">Copy</button>
+          <pre><code id="download-dblp-all">docker run --rm \
   -v "$(pwd)":/data \
   dbpedia/databus-python-client \
-  download --all-versions https://databus.dbpedia.org/knowledge-graph-catalog/orkg</code></pre>
+  download --all-versions https://databus.dbpedia.org/knowledge-graph-catalog/dblp</code></pre>
         </div>
 
         <h2 style="margin-top:1rem; font-size:1.08rem;">Download the latest versions of all KGs</h2>
